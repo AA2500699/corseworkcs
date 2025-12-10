@@ -22,24 +22,61 @@ PC2 = [
 
 ROTATIONS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
 
-def validate_key(key):
-    if not isinstance(key, str):
+def validate_key(key64):
+    if not isinstance(key64, str):
         print("ERROR: Key must be written as text (a string).")
         return False
-    if len(key) != 64:
+    if len(key64) != 64:
         print("ERROR: Key must be exactly 64 bits long.")
         return False
-    for bit in key:
-        if bit not in ("0", "1"):
+    for i in key64:
+        if i not in ("0", "1"):
             print("ERROR: Key must contain only 0s and 1s.")
             return False
     return True
+
 def permute(bits, table):
     new_bits = ""
     try:
-        for position in table:
-            new_bits += bits[position - 1]
+        for i in table:
+            new_bits += bits[i-1]
     except:
         print("ERROR: Something went wrong during permutation.")
         return None
     return new_bits
+
+def left_shift(bits, amount):
+    return bits[amount:] + bits[:amount]
+
+def generate_round_keys(key64):
+    if not validate_key(key64):
+        return None
+    key56 = permute(key64, PC1)
+    if key56 is None:
+        return None
+    C_side = key56[:28]   # left side
+    D_side = key56[28:]   # right aide
+    round_keys = []
+    for i in range(16):
+        shift_amount = ROTATIONS[i]
+        C_side = left_shift(C_side, shift_amount)
+        D_side = left_shift(D_side, shift_amount)
+        two_halves= C_side + D_side
+
+        round_key = permute(two_halves, PC2)
+        if round_key is None:
+            return None
+        round_keys.append(round_key)
+    return round_keys
+
+
+
+
+##### just incase of running directly ####
+#if __name__ == "__main__":
+    key64 = input("Enter a 64-bit key (0s and 1s): ")
+    round_keys = generate_round_keys(key64)
+    if round_keys:
+        print("Generated Round Keys:")
+        for i, rk in enumerate(round_keys):
+            print(f"K{i+1}: {rk}")
