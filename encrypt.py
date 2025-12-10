@@ -111,3 +111,20 @@ def xor(bits1, bits2):
         else:
             result += "1"
     return result
+
+def s_box_substitution(bits48):
+    output = ""
+    for i in range(8):
+        chunk = bits48[i*6:(i+1)*6]
+        row = int(chunk[0] + chunk[5], 2)
+        col = int(chunk[1:5], 2)
+        value = S_BOXES[i][row][col]
+        output += format(value, "04b")
+    return output
+
+def f_funtion(R, round_key):
+    R_expanded = permute(R, E)
+    xored = xor(R_expanded, round_key)
+    sboxed = s_box_substitution(xored)
+    output = permute(sboxed, P)
+    return output
