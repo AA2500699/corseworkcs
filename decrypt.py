@@ -103,3 +103,29 @@ def s_box_substitution(bits48):
         value = S_BOXES[i][row][col]
         output += format(value, "04b")
     return output
+
+# DES F-function
+def f_function(R, round_key):
+    R_expanded = permute(R, E)
+    xored = xor(R_expanded, round_key)
+    sboxed = s_box_substitution(xored)
+    output = permute(sboxed, P)
+    return output
+
+# Decrypt a 64-bit block
+def decrypt_block(ciphertext64, round_keys):
+    permuted = permute(ciphertext64, IP)
+    L = permuted[:32]
+    R = permuted[32:]
+
+    # 16 rounds in reverse order
+    for i in range(15, -1, -1):
+        temp_R = R
+        f_result = f_function(R, round_keys[i])
+        R = xor(L, f_result)
+        L = temp_R
+
+    # Swap halves and final permutation
+    combined = R + L
+    plaintext = permute(combined, FP)
+    return plaintext
