@@ -82,3 +82,24 @@ S_BOXES = [
      [7,11,4,1,9,12,14,2,0,6,10,13,15,3,5,8],
      [2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11]]
 ]
+
+# Simple XOR function
+def xor(bits1, bits2):
+    result = ""
+    for i in range(len(bits1)):
+        if bits1[i] == bits2[i]:
+            result += "0"
+        else:
+            result += "1"
+    return result
+
+# S-box substitution
+def s_box_substitution(bits48):
+    output = ""
+    for i in range(8):
+        chunk = bits48[i*6:(i+1)*6]
+        row = int(chunk[0] + chunk[5], 2)
+        col = int(chunk[1:5], 2)
+        value = S_BOXES[i][row][col]
+        output += format(value, "04b")
+    return output

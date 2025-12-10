@@ -98,17 +98,19 @@ def xor(bits1, bits2):
     return result
 
 def s_box_substitution(bits48):
-    "Takes 48 bits, applies S-boxes, returns 32 bits"
     if len(bits48) != 48:
-        print("ERROR: bits48 must be 48 bits")
+        print(f"ERROR: S-box input must be 48 bits, got {len(bits48)} bits")
         return None
     output = ""
     for i in range(8):
         chunk = bits48[i*6:(i+1)*6]
-        row = int(chunk[0] + chunk[5], 2)   # first+last bit
-        col = int(chunk[1:5], 2)           # middle 4 bits
+        if len(chunk) != 6:
+            raise ValueError(f"S-box chunk must be 6 bits, got {len(chunk)} bits")
+        row = int(chunk[0] + chunk[5], 2)
+        col = int(chunk[1:5], 2)
         output += format(S_BOXES[i][row][col], "04b")
     return output
+
 
 def f_function(R, round_key):
     R_expanded = permute(R, E)
@@ -120,6 +122,12 @@ def f_function(R, round_key):
 # ------------------ Main Encryption ------------------
 
 def encrypt_block(plaintext64, round_keys):
+    
+    for k in round_keys:
+        if len(k) != 48:
+            print("ERROR: All round keys must be 48 bits")
+            return None
+
     "Encrypts a single 64-bit block"
     if len(plaintext64) != 64:
         print("ERROR: plaintext must be 64 bits")
@@ -139,16 +147,5 @@ def encrypt_block(plaintext64, round_keys):
     # Swap halves and final permutation
     combined = R + L
     ciphertext = permute(combined, FP)
+
     return ciphertext
-
-# ------------------ Run Example ------------------
-
-#if __name__ == "__main__":
-    plaintext = input("Enter a 64-bit plaintext (0s and 1s): ")
-    key = input("Enter a 64-bit key (0s and 1s): ")
-
-    round_keys = generate_round_keys(key)
-    if round_keys:
-        ciphertext = encrypt_block(plaintext, round_keys)
-        if ciphertext:
-            print("Ciphertext:", ciphertext)

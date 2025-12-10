@@ -68,15 +68,3 @@ def generate_round_keys(key64):
             return None
         round_keys.append(round_key)
     return round_keys
-
-
-
-
-##### just incase of running directly ####
-#if __name__ == "__main__":
-    key64 = input("Enter a 64-bit key (0s and 1s): ")
-    round_keys = generate_round_keys(key64)
-    if round_keys:
-        print("Generated Round Keys:")
-        for i, rk in enumerate(round_keys):
-            print(f"K{i+1}: {rk}")
