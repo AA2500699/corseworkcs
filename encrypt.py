@@ -1,4 +1,4 @@
-from keygen import generate_round_keys  
+from keygen import generate_round_keys, permute, left_shift
 
 IP = [
     58,50,42,34,26,18,10,2,
@@ -40,7 +40,6 @@ P = [
     19,13,30,6,22,11,4,25
 ]
 
-# Real S-Boxes (S1 to S8)
 S_BOXES = [
     # S1
     [
@@ -99,3 +98,16 @@ S_BOXES = [
         [2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11]
     ]
 ]
+
+def xor(bits1, bits2):
+    if len(bits1) != len(bits2):
+        print("ERROR: Inputs must be the same length for XOR.")
+        return None
+    result = ""
+
+    for i in range(len(bits1)):
+        if bits1[i] == bits2[i]:
+            result += "0"
+        else:
+            result += "1"
+    return result
